@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreLocation
+import UserNotifications
 
 class ViewController: UIViewController,LocationDataManagerDelegate {
 
@@ -27,7 +28,7 @@ class ViewController: UIViewController,LocationDataManagerDelegate {
         self.title = "位置情報トラッカー"
         
         // 位置情報データマネージャ作成
-        self.locationDataManager = LocationDataManager()
+        self.locationDataManager = LocationDataManager.shared
         // 自分をデリゲートにセット
         self.locationDataManager.delegate = self
         
@@ -48,6 +49,10 @@ class ViewController: UIViewController,LocationDataManagerDelegate {
         // アプリ動作中の利用を申請
         locationDataManager.requestAuth()
         
+        // 通知の利用確認
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { (granted, error) in
+            // 結果はどうでも良い要求を出して選ばせることが重要
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -138,7 +143,6 @@ class ViewController: UIViewController,LocationDataManagerDelegate {
             return
         }
     }
-    
     
     // 連番画像の読み込み
     func jogboyImages() -> [UIImage] {

@@ -15,8 +15,12 @@ enum MyError:Error {
     case timerRun
 }
 
-class LocationDataManager: NSObject,CLLocationManagerDelegate {
-
+// 位置情報データマネージャ（自作です）
+class LocationDataManager:NSObject,CLLocationManagerDelegate {
+    
+    // １つだけのインスタンスを保持する（これ以外は作れない）
+    static let shared = LocationDataManager()
+    
     // デリゲート
     var delegate:LocationDataManagerDelegate? = nil
     
@@ -31,12 +35,23 @@ class LocationDataManager: NSObject,CLLocationManagerDelegate {
     // XMLテキスト(GPX)
     var xmlText:String = ""
     
-
-    
     // 定期的に緯度経度を記録するためのタイマー
     weak var timer:Timer?
     
-    override init() {
+    // 計測が有効かどうか判断するコンピューテッドプロパティ
+    var isStarting:Bool {
+        
+        if LocationDataManager.shared.timer != nil {
+            // タイマーがいれば動いてる
+            return true
+        } else {
+            // タイマーがいなければ止まってる
+            return false
+        }
+    }
+    
+    // イニシャライザを外から呼べなくする
+    private override init() {
         super.init()
         // 位置情報マネージャを作る
         self.locationManager = CLLocationManager()
@@ -44,6 +59,7 @@ class LocationDataManager: NSObject,CLLocationManagerDelegate {
         locationManager.delegate = self
     }
     
+    // 認証する
     func requestAuth() {
         // 位置情報の要求
         locationManager.requestAlwaysAuthorization()
@@ -69,6 +85,8 @@ class LocationDataManager: NSObject,CLLocationManagerDelegate {
             
             // 改行と緯度経度を文字列にして追記する
             self.xmlText.append("\n<wpt lat=\"\(latitude)\" lon=\"\(longitude)\"></wpt>")
+            
+            print("Add 1 Line")
         })
     }
     
@@ -114,7 +132,6 @@ class LocationDataManager: NSObject,CLLocationManagerDelegate {
         return filePath.lastPathComponent
     }
     
-    
     // MARK: - CLLocationManagerDelegate
     
     // 権限の変化
@@ -127,8 +144,6 @@ class LocationDataManager: NSObject,CLLocationManagerDelegate {
     // 位置情報が変わった
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        print("位置変わった",Date())
-        
         // 最新の結果を得る
         let location = locations.last!
         
@@ -136,6 +151,8 @@ class LocationDataManager: NSObject,CLLocationManagerDelegate {
         self.latitude = location.coordinate.latitude
         // 経度の保存
         self.longitude = location.coordinate.longitude
+        
+        print(Date().description(with: Locale.current),"change Location",location.coordinate)
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

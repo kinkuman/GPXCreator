@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -30,11 +31,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         
-        print(#function)
-        UIApplication.shared.beginBackgroundTask {
-            print("beginBackgroundTask")
-        }
+        print("バックグラウンドへいきました")
         
+        if LocationDataManager.shared.isStarting {
+            
+            // 計測中であるのならば
+            
+            // 延長申請
+            self.backgroundTaskIdentifier = application.beginBackgroundTask(expirationHandler: {
+                print("一応ずっと動いてよいはずです。実機だとこれが呼ばれません")
+            })
+            
+            print("バックグランド動作を開始します")
+            
+            // 通知を出す
+            self.showAlertNotification()
+        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -48,7 +60,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
+    
+    // MARK: - 自作メソッド
+    func showAlertNotification() {
+        // 通知の内容をつくる
+        let content = UNMutableNotificationContent()
+        content.title = "位置情報トラッカーが稼働中です"
+        content.body = "測定しています"
+        
+        // これは1秒後をきっかけとするトリガー
+        let timeTrigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        
+        // 通知リクエストオブジェクトにまとめる
+        let notificationRequest = UNNotificationRequest(identifier: "myNotification1", content: content, trigger: timeTrigger)
+        
+        // ユーザー通知センターの共有インスタンスを得る
+        let userNotificationCenter = UNUserNotificationCenter.current()        
+        // ユーザー通知センターに登録
+        userNotificationCenter.add(notificationRequest, withCompletionHandler: nil)
+    }
 }
 

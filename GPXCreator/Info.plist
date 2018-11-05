@@ -20,9 +20,9 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>位置使うよ</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>位置使うよ</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>このアプリは位置情報がないと意味がありません。許可してください。</string>
 	<key>UIBackgroundModes</key>
 	<array>

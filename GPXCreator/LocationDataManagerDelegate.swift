@@ -9,6 +9,7 @@
 import UIKit
 import CoreLocation
 
+// 位置情報データマネージャデリゲート
 protocol LocationDataManagerDelegate: NSObjectProtocol {
 
     // 権限状況の変化があったら呼ばれる
